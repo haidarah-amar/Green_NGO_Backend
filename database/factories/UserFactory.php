@@ -21,16 +21,61 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
-    {
-        return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
-        ];
-    }
+
+
+
+
+
+
+public function definition(): array
+{
+    return [
+        'first_name' => fake()->randomElement([
+    'أحمد','محمد','عمر','خالد','يوسف','عبدالله',
+    'سارة','نور','لينا','آية','مريم','رنا'
+]),
+        'last_name' => fake()->randomElement([
+    'الحسن','العلي','الحموي','الدمشقي','الخطيب',
+    'النجار','الزعبي','الرفاعي','السلوم','المحمود'
+]),
+        'email' => fake()->unique()->safeEmail(),
+        'email_verified_at' => now(),
+        'password' => 'password',
+        'phone' => fake()->numerify('09########'),
+        'role' => 'beneficiary',
+        'status' => fake()->randomElement(['active', 'inactive']),
+        'last_login_at' => fake()->optional()->dateTime(),
+        'remember_token' => Str::random(10),
+    ];
+}
+
+public function employee(): static
+{
+    return $this->state(fn (array $attributes) => [
+        'role' => 'employee',
+    ]);
+}
+
+public function donor(): static
+{
+    return $this->state(fn (array $attributes) => [
+        'role' => 'donor',
+    ]);
+}
+
+public function beneficiary(): static
+{
+    return $this->state(fn (array $attributes) => [
+        'role' => 'beneficiary',
+    ]);
+}
+
+public function trainer(): static
+{
+    return $this->state(fn (array $attributes) => [
+        'role' => 'trainer',
+    ]);
+}
 
     /**
      * Indicate that the model's email address should be unverified.
