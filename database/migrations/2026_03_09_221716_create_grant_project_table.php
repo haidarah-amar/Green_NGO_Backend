@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-           
+        Schema::create('grant_project', function (Blueprint $table) {
             $table->id();
-            $table->enum('position', ['system_admin', 'project_manager','program_manager','field_coordinator','finance_officer','mel_officer'])->default('mel_officer');
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees');
+        Schema::dropIfExists('grant_project');
     }
 };

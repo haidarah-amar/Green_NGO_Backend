@@ -19,8 +19,22 @@ class DatabaseSeeder extends Seeder
 
 public function run(): void
 {
-    Employee::factory()->count(40)->create();
-    Donor::factory()->count(20)->create();
-    Beneficiary::factory()->count(2000)->create();
+     $this->call([
+        UserSeeder::class,
+        EmployeeSeeder::class,
+        DonorSeeder::class,
+        BeneficiarySeeder::class,
+        ProjectSeeder::class,
+        ProgramSeeder::class,
+        ActivitySeeder::class,
+        SurveySeeder::class,
+        GrantSeeder::class,
+        ExpensesSeeder::class,
+        ReportSeeder::class,
+        SuccessStorySeeder::class,
+        FollowUPSeeder::class,
+    ]);
 }
 }
+
+

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('contact_person');
             $table->string('contact_email');
             $table->string('contact_phone');
+            $table->string('image_url')->nullable();
             $table->double('total_grants_usd')->default(0);
             $table->timestamps();
         });

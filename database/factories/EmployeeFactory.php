@@ -20,6 +20,7 @@ public function definition(): array
         'user_id' => \App\Models\User::factory()->employee(),
         'position' => fake()->randomElement([
             'system_admin',
+            'project_manager',
             'program_manager',
             'field_coordinator',
             'finance_officer',

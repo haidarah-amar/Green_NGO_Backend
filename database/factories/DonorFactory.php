@@ -29,6 +29,7 @@ public function definition(): array
         'contact_person' => fake()->name(),
         'contact_email' => fake()->safeEmail(),
         'contact_phone' => fake()->phoneNumber(),
+        'image_url' => $this->faker->imageUrl(640, 480, 'people'),
         'total_grants_usd' => fake()->randomFloat(2, 1000, 500000),
     ];
 }

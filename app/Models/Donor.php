@@ -16,4 +16,17 @@ class Donor extends Model
     {
         return $this->belongsTo(User::class);
     } 
+
+    public function projects()
+{
+    return $this->belongsToMany(Project::class, 'donor_project');
+}
+
+    public function grants()
+{
+    return $this->hasMany(Grant::class);
+
+}
+
+
 }
