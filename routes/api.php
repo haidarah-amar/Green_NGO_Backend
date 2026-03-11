@@ -91,7 +91,7 @@ Route::prefix('donors')
         
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', 'store');
-            Route::patch('/{id}', 'update');
+            Route::post('/{id}', 'update');
             Route::delete('/{id}', 'destroy');
         });
 
