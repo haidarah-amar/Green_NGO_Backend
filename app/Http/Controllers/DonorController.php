@@ -20,20 +20,28 @@ class DonorController extends Controller
 
     public function store(StoreDonorRequest $request)
     {
-            if(Donor::where('user_id',Auth::id())->exists()){
-        return response()->json([
-            'message' => 'لا يمكنك إنشاء ملف تعريفي كمانح لأن لديك بالفعل واحد'
-        ],409);
-    }
+        if (Donor::where('user_id', Auth::id())->exists()) {
+            return response()->json([
+                'message' => 'لا يمكنك إنشاء ملف تعريفي كمانح لأن لديك بالفعل واحد'
+            ], 409);
+        }
+
+        $data = $request->validated();
+
+        // Handle image_url as file or URL
+        if ($request->hasFile('image_url')) {
+            $data['image_url'] = $request->file('image_url')->store('donor_images', 'public');
+        }
+
         $donor = Donor::create([
             'user_id' => Auth::id(),
-            ...$request->validated()
+            ...$data
         ]);
 
         return response()->json([
             'message' => 'تم اكمال البيانات كمانح بنجاح',
             'data' => $donor
-        ],201);
+        ], 201);
     }
 
     public function show($id)
@@ -43,18 +51,24 @@ class DonorController extends Controller
         return response()->json($donor);
     }
 
-    public function update(UpdateDonorRequest $request,$id)
+    public function update(UpdateDonorRequest $request, $id)
     {
         $donor = Donor::findOrFail($id);
 
-
-        if($donor->user_id !== Auth::id()){
+        if ($donor->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Unauthorized'
-            ],403);
+            ], 403);
         }
 
-        $donor->update($request->validated());
+        $data = $request->validated();
+
+        // Handle image_url as file or URL
+        if ($request->hasFile('image_url')) {
+            $data['image_url'] = $request->file('image_url')->store('donor_images', 'public');
+        }
+
+        $donor->update($data);
 
         return response()->json([
             'message' => 'تم تحديث بيانات  بنجاح',
@@ -66,10 +80,10 @@ class DonorController extends Controller
     {
         $donor = Donor::findOrFail($id);
 
-        if($donor->user_id !== Auth::id()){
+        if ($donor->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Unauthorized'
-            ],403);
+            ], 403);
         }
 
         $donor->delete();
