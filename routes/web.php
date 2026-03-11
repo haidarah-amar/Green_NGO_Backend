@@ -3,6 +3,7 @@
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DonorController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\KpiSummaryController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
@@ -59,6 +60,19 @@ Route::prefix('donors')
             Route::delete('/{id}', 'destroy');
             Route::get('/my-profile', 'myProfile');
         });
+
+    });
+
+    Route::middleware('auth:sanctum')
+    ->prefix('employees')
+    ->controller(EmployeeController::class)
+    ->group(function () {
+
+        Route::get('/', 'index');
+        Route::get('/{id}', 'show');
+        Route::post('/', 'store');
+        Route::post('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
 
     });
 

@@ -4,6 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BeneficiaryController;
+use App\Http\Controllers\DonorController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\KpiSummaryController;
+use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SuccessStoryController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -38,11 +44,6 @@ Route::prefix('beneficiaries')
     });
 });
 
-use App\Http\Controllers\DonorController;
-use App\Http\Controllers\KpiSummaryController;
-use App\Http\Controllers\ProgramController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\SuccessStoryController;
 
 Route::prefix('donors')
     ->controller(DonorController::class)
@@ -62,6 +63,22 @@ Route::prefix('donors')
         });
 
     });
+
+
+
+    Route::middleware('auth:sanctum')
+    ->prefix('employees')
+    ->controller(EmployeeController::class)
+    ->group(function () {
+
+        Route::get('/', 'index');
+        Route::get('/{id}', 'show');
+        Route::post('/', 'store');
+        Route::post('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
+
+    });
+
 
     Route::prefix('projects')
     ->controller(ProjectController::class)
