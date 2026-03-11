@@ -81,7 +81,7 @@ class DonorController extends Controller
 
     public function getPartners()
     {
-        $partners = Donor::orderByDesc('total_grants_usd')
+        $partners = Donor::orderByDesc('total_grants_usd')->with('user')
             ->take(10)
             ->get();
 
