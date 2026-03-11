@@ -85,11 +85,11 @@ Route::prefix('donors')
         Route::get('/{id}', 'show');
 
         
-        // Route::middleware('auth:sanctum')->group(function () {
-        //     Route::post('/', 'store');
-        //     Route::patch('/{id}', 'update');
-        //     Route::delete('/{id}', 'destroy');
-        // });
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/', 'store');
+            Route::patch('/{id}', 'update');
+            Route::delete('/{id}', 'destroy');
+        });
 
     });
     Route::prefix('programs')
