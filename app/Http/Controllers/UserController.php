@@ -12,7 +12,11 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
 
-
+public function index()
+    {
+        $users = User::paginate(10);
+        return response()->json($users);
+    }
 public function register(Request $request)
 {
     $validator = Validator::make($request->all(), [
