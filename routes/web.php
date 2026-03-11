@@ -35,7 +35,7 @@ Route::prefix('beneficiaries')
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::get('/{beneficiary}', 'show');
-        Route::patch('/{beneficiary}', 'update');
+        Route::post('/{beneficiary}', 'update');
         Route::delete('/{beneficiary}', 'destroy');
 
     });
@@ -55,7 +55,7 @@ Route::prefix('donors')
         
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', 'store');
-            Route::patch('/{id}', 'update');
+            Route::post('/{id}', 'update');
             Route::delete('/{id}', 'destroy');
             Route::get('/my-profile', 'myProfile');
         });
