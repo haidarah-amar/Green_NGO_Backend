@@ -10,6 +10,8 @@ use App\Http\Controllers\KpiSummaryController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SuccessStoryController;
+use App\Http\Controllers\ImportController;
+
 
 Route::get('/test', function () {
     return response()->json([
@@ -146,6 +148,10 @@ Route::prefix('donors')
         // });
 
     });
+
+    
+    Route::post('/import/donors', [ImportController::class, 'importDonors']);
+    Route::post('/import/projects', [ImportController::class, 'importProjects']);
 
     
 
