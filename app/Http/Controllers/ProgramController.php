@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProgramRequest;
 use App\Http\Requests\UpdateProgramRequest;
+use App\Jobs\ApplyToProgramJob;
 use App\Models\Employee;
 use App\Models\Program;
 use Illuminate\Http\Request;
@@ -98,6 +99,18 @@ class ProgramController extends Controller
         ]);
 
     }
+
+    public function apply($programId)
+{
+    $beneficiary = Auth::user()->beneficiary;
+
+    ApplyToProgramJob::dispatch($beneficiary->id, $programId);
+
+    return response()->json([
+        'message' => 'تم استلام طلب التقديم'
+    ]);
+}
+
 
     
 }
