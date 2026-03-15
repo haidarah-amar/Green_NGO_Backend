@@ -29,7 +29,7 @@ class ApplyToActivityJob implements ShouldQueue
                 return;
             }
 
-            $count = DB::table('activity_beneficiary')
+            $count = DB::table('activity_beneficiaries')
                 ->where('activity_id', $this->activityId)
                 ->count();
 
@@ -37,7 +37,7 @@ class ApplyToActivityJob implements ShouldQueue
                 return;
             }
 
-            $exists = DB::table('activity_beneficiary')
+            $exists = DB::table('activity_beneficiaries')
                 ->where('activity_id', $this->activityId)
                 ->where('beneficiary_id', $this->beneficiaryId)
                 ->exists();
@@ -46,7 +46,7 @@ class ApplyToActivityJob implements ShouldQueue
                 return;
             }
 
-            DB::table('activity_beneficiary')->insert([
+            DB::table('activity_beneficiaries')->insert([
                 'activity_id' => $this->activityId,
                 'beneficiary_id' => $this->beneficiaryId,
             ]);
