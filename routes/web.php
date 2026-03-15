@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DonorController;
@@ -144,5 +145,16 @@ Route::prefix('donors')
 
     });
 
-    
+    Route::prefix('activities')->controller(ActivityController::class)->group(function(){
+
+    Route::get('/', 'index');
+    Route::get('{id}', 'show');
+    Route::post('/', 'store');
+    Route::post('{id}', 'update');
+    Route::delete('{id}', 'destroy');
+    Route::get('/{program}/activities', 'programActivities');
+    Route::post('/{activity}/apply',  'apply');
+
+
+});
 

@@ -110,6 +110,10 @@ class ProgramController extends Controller
         'message' => 'تم استلام طلب التقديم'
     ]);
 }
+ public function ProjectPrograms($projectId)
+{
+    return Program::where('project_id',$projectId)->get();
+}
 
 
     

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -106,6 +107,7 @@ Route::prefix('donors')
         
         Route::get('/', 'index');
         Route::get('/{id}', 'show');
+        Route::get('/project/{projectId}', 'ProjectPrograms');
 
         
         Route::middleware('auth:sanctum')->group(function () {
@@ -150,9 +152,21 @@ Route::prefix('donors')
 
     });
 
+    Route::prefix('activities')->controller(ActivityController::class)->group(function(){
+
+    Route::get('/', 'index');
+    Route::get('{id}', 'show');
+    Route::post('/', 'store');
+    Route::post('{id}', 'update');
+    Route::delete('{id}', 'destroy');
+    Route::get('/{program}/activities', 'programActivities');
+    Route::post('/{activity}/apply',  'apply');
+
+
+});
     
     Route::post('/import/donors', [ImportController::class, 'importDonors']);
     Route::post('/import/projects', [ImportController::class, 'importProjects']);
 
-    
+
 
