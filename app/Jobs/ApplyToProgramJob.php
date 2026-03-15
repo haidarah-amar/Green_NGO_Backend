@@ -35,7 +35,6 @@ class ApplyToProgramJob implements ShouldQueue
             DB::table('program_beneficiary')->insert([
                 'program_id' => $this->programId,
                 'beneficiary_id' => $this->beneficiaryId,
-                'applied_at' => now()
             ]);
 
         });
