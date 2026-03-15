@@ -152,7 +152,7 @@ Route::prefix('donors')
 
     });
 
-    Route::prefix('activities')->controller(ActivityController::class)->group(function(){
+    Route::middleware('auth:sanctum')->prefix('activities')->controller(ActivityController::class)->group(function(){
 
     Route::get('/', 'index');
     Route::get('{id}', 'show');

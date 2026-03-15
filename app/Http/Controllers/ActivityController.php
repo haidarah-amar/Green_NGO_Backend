@@ -90,12 +90,20 @@ class ActivityController extends Controller
 
 public function apply($activityId)
     {
-        $beneficiary = Auth::user()->beneficiary;
+    $user = Auth::user();
 
-        ApplyToActivityJob::dispatch($beneficiary->id, $activityId);
-
+     if ($user->role !== 'beneficiary') {
         return response()->json([
-            'message' => 'تم استلام طلب التقديم'
-        ]);
+            'message' => 'فقط المستفيدين يمكنهم التقديم على الأنشطة'
+        ],403);
+    }
+
+    $beneficiary = $user->beneficiary;
+
+    ApplyToActivityJob::dispatch($beneficiary->id, $activityId);
+
+    return response()->json([
+        'message' => 'تم استلام طلب التقديم'
+    ]);
     }
 }
