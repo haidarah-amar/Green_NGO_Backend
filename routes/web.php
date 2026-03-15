@@ -118,13 +118,14 @@ Route::prefix('donors')
         
         Route::get('/', 'index');
         Route::get('/{id}', 'show');
+        Route::get('/beneficiary/{beneficiaryId}', 'beneficiaryStories');
 
         
-        // Route::middleware('auth:sanctum')->group(function () {
-        //     Route::post('/', 'store');
-        //     Route::patch('/{id}', 'update');
-        //     Route::delete('/{id}', 'destroy');
-        // });
+         Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/', 'store');
+            Route::post('/{id}', 'update');
+            Route::delete('/{id}', 'destroy');
+        });
 
     });
 
