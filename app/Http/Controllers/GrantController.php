@@ -6,6 +6,7 @@ use App\Models\Grant;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreGrantRequest;
 use App\Http\Requests\UpdateGrantRequest;
+use Illuminate\Support\Facades\DB;
 
 class GrantController extends Controller
 {
@@ -32,16 +33,17 @@ public function store(StoreGrantRequest $request)
 
     $data['donor_id'] = $donor->id;
 
+   DB::transaction(function () use ($data, $donor, &$grant) {
+
     $grant = Grant::create($data);
 
-
-    if(isset($data['projects']))
-    {
-        $grant->project()->sync($data['projects']);
+    if (!empty($data['projects'])) {
+        $grant->projects()->sync($data['projects']);
     }
 
-
     $donor->increment('total_grants_usd', $grant->total_amount_usd);
+
+});
 
 
     return response()->json([
@@ -49,40 +51,40 @@ public function store(StoreGrantRequest $request)
         'data' => $grant
     ],201);
 }
-public function update(UpdateGrantRequest $request,$id)
+public function update(UpdateGrantRequest $request, $id)
 {
-
     $donor = Auth::user()->donor;
 
-    $grant = Grant::where('id',$id)
-        ->where('donor_id',$donor->id)
+    $grant = Grant::where('id', $id)
+        ->where('donor_id', $donor->id)
         ->firstOrFail();
 
     $oldAmount = $grant->total_amount_usd;
 
     $data = $request->validated();
 
-    $grant->update($data);
+    DB::transaction(function () use ($grant, $data, $donor, $oldAmount) {
 
+        $grant->update($data);
 
-    if(isset($data['projects']))
-    {
-        $grant->project()->sync($data['projects']);
-    }
+        if (!empty($data['projects'])) {
+            $grant->projects()->sync($data['projects']);
+        }
 
+        $newAmount = $grant->total_amount_usd;
 
-    $newAmount = $grant->total_amount_usd;
+        $difference = $newAmount - $oldAmount;
 
-    $difference = $newAmount - $oldAmount;
+        $donor->increment('total_grants_usd', $difference);
 
-    $donor->increment('total_grants_usd', $difference);
-
+    });
 
     return response()->json([
         'message' => 'تم تحديث معلومات المنحة بنجاح',
-        'data' => $grant
+        'data' => $grant->load('projects')
     ]);
 }
+
 
 public function destroy($id)
 {

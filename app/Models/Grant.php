@@ -12,7 +12,7 @@ class Grant extends Model
 
     protected $guarded = [];
 
-    public function project()
+    public function projects()
     {
         return $this->belongsToMany(Project::class, 'grant_project');
     }
