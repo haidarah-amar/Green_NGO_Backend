@@ -27,7 +27,7 @@ public function donors()
 } 
 public function grants()
 {
-    return $this->belongsToMany(Grant::class, 'grant_project', 'project_id', 'grant_id');
+    return $this->belongsToMany(Grant::class, 'grant_project');
 
 }
 public function reports()

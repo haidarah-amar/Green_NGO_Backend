@@ -14,7 +14,7 @@ class Grant extends Model
 
     public function project()
     {
-        return $this->belongsToMany(Project::class, 'grant_project', 'grant_id', 'project_id');
+        return $this->belongsToMany(Project::class, 'grant_project');
     }
 
     public function donor()
