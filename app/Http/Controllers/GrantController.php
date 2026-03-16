@@ -33,25 +33,22 @@ public function store(StoreGrantRequest $request)
 
     $data['donor_id'] = $donor->id;
 
-   DB::transaction(function () use ($data, $donor, &$grant) {
+    DB::transaction(function () use ($data, $donor, &$grant) {
 
-    $grant = Grant::create($data);
+        $grant = Grant::create($data);
 
-    dd($data['projects']);
+        // Ensure projects key exists and is an array
+        if (isset($data['projects']) && is_array($data['projects'])) {
+            $grant->projects()->sync($data['projects']);
+        }
 
-    if (!empty($data['projects'])) {
-        $grant->projects()->sync($data['projects']);
-    }
-
-    $donor->increment('total_grants_usd', $grant->total_amount_usd);
-
-});
-
+        $donor->increment('total_grants_usd', $grant->total_amount_usd);
+    });
 
     return response()->json([
         'message' => 'تم إضافة المنحة بنجاح',
         'data' => $grant
-    ],201);
+    ], 201);
 }
 public function update(UpdateGrantRequest $request, $id)
 {
@@ -69,7 +66,8 @@ public function update(UpdateGrantRequest $request, $id)
 
         $grant->update($data);
 
-        if (!empty($data['projects'])) {
+        // Ensure projects key exists and is an array
+        if (isset($data['projects']) && is_array($data['projects'])) {
             $grant->projects()->sync($data['projects']);
         }
 
@@ -78,7 +76,6 @@ public function update(UpdateGrantRequest $request, $id)
         $difference = $newAmount - $oldAmount;
 
         $donor->increment('total_grants_usd', $difference);
-
     });
 
     return response()->json([
