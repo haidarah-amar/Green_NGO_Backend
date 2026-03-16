@@ -184,9 +184,9 @@ Route::prefix('grants')->controller(GrantController::class)->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/store', [GrantController::class, 'store']);
-    Route::post('/update/{id}', [GrantController::class, 'update']);
-    Route::delete('/delete/{id}', [GrantController::class, 'destroy']);
+    Route::post('/', [GrantController::class, 'store']);
+    Route::post('/{id}', [GrantController::class, 'update']);
+    Route::delete('/{id}', [GrantController::class, 'destroy']);
 
     });
  });
