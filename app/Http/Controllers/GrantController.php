@@ -12,7 +12,7 @@ class GrantController extends Controller
 {
 public function index()
 {
-    $grants = Grant::with(['donor','project'])
+    $grants = Grant::with(['donor','projects'])
         ->latest()
         ->paginate(10);
 
@@ -20,7 +20,7 @@ public function index()
 }
 public function show($id)
 {
-    $grant = Grant::with(['donor','project'])
+    $grant = Grant::with(['donor','projects'])
         ->findOrFail($id);
 
     return response()->json($grant);
@@ -36,6 +36,8 @@ public function store(StoreGrantRequest $request)
    DB::transaction(function () use ($data, $donor, &$grant) {
 
     $grant = Grant::create($data);
+
+    dd($data['projects']);
 
     if (!empty($data['projects'])) {
         $grant->projects()->sync($data['projects']);
@@ -111,7 +113,7 @@ public function grantsByDonor($donorId)
 {
 
     $grants = Grant::where('donor_id',$donorId)
-        ->with(['project','donor'])
+        ->with(['projects','donor'])
         ->get();
 
     return response()->json($grants);
@@ -119,12 +121,11 @@ public function grantsByDonor($donorId)
 public function grantsByProject($projectId)
 {
 
-    $grants = Grant::whereHas('project', function ($q) use ($projectId) {
+    $grants = Grant::whereHas('projects', function ($q) use ($projectId) {
 
         $q->where('project_id',$projectId);
 
-    })->with(['donor','project'])->get();
-
+    })->with(['donor','projects'])->get();
     return response()->json($grants);
 }
 }
