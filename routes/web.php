@@ -5,6 +5,8 @@ use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DonorController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\GrantController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\KpiSummaryController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
@@ -150,12 +152,39 @@ Route::prefix('donors')
 
     Route::get('/', 'index');
     Route::get('{id}', 'show');
+    Route::get('/{program}/activities', 'programActivities');
+
+    Route::middleware('auth:sanctum')->group(function () {
     Route::post('/', 'store');
     Route::post('{id}', 'update');
     Route::delete('{id}', 'destroy');
-    Route::get('/{program}/activities', 'programActivities');
     Route::post('/{activity}/apply',  'apply');
 
+     });   
 
-});
+    });
+    
+    Route::post('/import/donors', [ImportController::class, 'importDonors']);
+    Route::post('/import/projects', [ImportController::class, 'importProjects']);
+
+
+
+Route::prefix('grants')->controller(GrantController::class)->group(function () {
+
+    Route::get('/', 'index');
+    Route::get('/{id}', 'show');
+    Route::get('/donors/{id}/grants','grantsByDonor');
+    Route::get('/projects/{id}/grants','grantsByProject');
+
+    Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/store', [GrantController::class, 'store']);
+    Route::post('/update/{id}', [GrantController::class, 'update']);
+    Route::delete('/delete/{id}', [GrantController::class, 'destroy']);
+
+    });
+ });
+
+
+
 

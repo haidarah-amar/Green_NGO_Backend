@@ -1,0 +1,128 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Grant;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreGrantRequest;
+use App\Http\Requests\UpdateGrantRequest;
+
+class GrantController extends Controller
+{
+public function index()
+{
+    $grants = Grant::with(['donor','project'])
+        ->latest()
+        ->paginate(10);
+
+    return response()->json($grants);
+}
+public function show($id)
+{
+    $grant = Grant::with(['donor','project'])
+        ->findOrFail($id);
+
+    return response()->json($grant);
+}
+public function store(StoreGrantRequest $request)
+{
+    $donor = Auth::user()->donor;
+
+    $data = $request->validated();
+
+    $data['donor_id'] = $donor->id;
+
+    $grant = Grant::create($data);
+
+
+    if(isset($data['projects']))
+    {
+        $grant->project()->sync($data['projects']);
+    }
+
+
+    $donor->increment('total_grants_usd', $grant->total_amount_usd);
+
+
+    return response()->json([
+        'message' => 'تم إضافة المنحة بنجاح',
+        'data' => $grant
+    ],201);
+}
+public function update(UpdateGrantRequest $request,$id)
+{
+
+    $donor = Auth::user()->donor;
+
+    $grant = Grant::where('id',$id)
+        ->where('donor_id',$donor->id)
+        ->firstOrFail();
+
+    $oldAmount = $grant->total_amount_usd;
+
+    $data = $request->validated();
+
+    $grant->update($data);
+
+
+    if(isset($data['projects']))
+    {
+        $grant->project()->sync($data['projects']);
+    }
+
+
+    $newAmount = $grant->total_amount_usd;
+
+    $difference = $newAmount - $oldAmount;
+
+    $donor->increment('total_grants_usd', $difference);
+
+
+    return response()->json([
+        'message' => 'تم تحديث معلومات المنحة بنجاح',
+        'data' => $grant
+    ]);
+}
+
+public function destroy($id)
+{
+
+    $donor = Auth::user()->donor;
+
+    $grant = Grant::where('id',$id)
+        ->where('donor_id',$donor->id)
+        ->firstOrFail();
+
+
+    $donor->decrement('total_grants_usd', $grant->total_amount_usd);
+
+
+    $grant->delete();
+
+
+    return response()->json([
+        'message' => 'تم الغاء المنحة بنجاح'
+    ]);
+}
+
+public function grantsByDonor($donorId)
+{
+
+    $grants = Grant::where('donor_id',$donorId)
+        ->with(['project','donor'])
+        ->get();
+
+    return response()->json($grants);
+}
+public function grantsByProject($projectId)
+{
+
+    $grants = Grant::whereHas('project', function ($q) use ($projectId) {
+
+        $q->where('project_id',$projectId);
+
+    })->with(['donor','project'])->get();
+
+    return response()->json($grants);
+}
+}
