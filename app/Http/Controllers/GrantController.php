@@ -37,9 +37,16 @@ public function store(StoreGrantRequest $request)
 
         $grant = Grant::create($data);
 
+        // Debugging: Log the projects data
+        logger()->info('Projects data:', ['projects' => $data['projects'] ?? null]);
+
         // Ensure projects key exists and is an array
         if (isset($data['projects']) && is_array($data['projects'])) {
             $grant->projects()->sync($data['projects']);
+
+            // Debugging: Check if sync was successful
+            $syncedProjects = $grant->projects;
+            logger()->info('Synced projects:', ['synced_projects' => $syncedProjects]);
         }
 
         $donor->increment('total_grants_usd', $grant->total_amount_usd);
