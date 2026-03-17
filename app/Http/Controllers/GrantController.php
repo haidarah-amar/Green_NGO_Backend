@@ -2,134 +2,189 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Grant;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\AcceptGrantRequest;
 use App\Http\Requests\StoreGrantRequest;
 use App\Http\Requests\UpdateGrantRequest;
+use App\Models\Donor;
+use App\Models\Grant;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class GrantController extends Controller
 {
-public function index()
-{
-    $grants = Grant::with(['donor','projects'])
-        ->latest()
-        ->paginate(10);
+    public function index()
+    {
+        $grants = Grant::with(['donor', 'projects'])->latest()->paginate(10);
 
-    return response()->json($grants);
-}
-public function show($id)
-{
-    $grant = Grant::with(['donor','projects'])
-        ->findOrFail($id);
+        return response()->json([
+            'data' => $grants
+        ], 200);
+    }
 
-    return response()->json($grant);
-}
-public function store(StoreGrantRequest $request)
-{
-    $donor = Auth::user()->donor;
+    public function show(Grant $grant)
+    {
+        $grant->load(['donor', 'projects']);
 
-    $data = $request->validated();
+        return response()->json([
+            'data' => $grant
+        ], 200);
+    }
 
-    $data['donor_id'] = $donor->id;
+    public function store(StoreGrantRequest $request)
+    {
+        $data = $request->validated();
+        $data['donor_id'] = Auth::user()->donor->id;
 
-    DB::transaction(function () use ($data, $donor, &$grant) {
+        $projectIds = $data['projects'] ?? [];
+        unset($data['projects']);
 
         $grant = Grant::create($data);
 
-        // Debugging: Log the projects data
-        logger()->info('Projects data:', ['projects' => $data['projects'] ?? null]);
-
-        // Ensure projects key exists and is an array
-        if (isset($data['projects']) && is_array($data['projects'])) {
-            $grant->projects()->sync($data['projects']);
-
-            // Debugging: Check if sync was successful
-            $syncedProjects = $grant->projects;
-            logger()->info('Synced projects:', ['synced_projects' => $syncedProjects]);
+        if (!empty($projectIds)) {
+            $grant->projects()->sync($projectIds);
         }
 
-        $donor->increment('total_grants_usd', $grant->total_amount_usd);
-    });
+        $received_amount = $grant->received_amount_usd;
 
-    return response()->json([
-        'message' => 'تم إضافة المنحة بنجاح',
-        'data' => $grant
-    ], 201);
-}
-public function update(UpdateGrantRequest $request, $id)
+        $donor = Donor::findOrFail($grant->donor_id);
+        $donor->increment('total_grants_usd', $received_amount);
+
+        $grant->load(['donor', 'projects']);
+
+        return response()->json([
+            'message' => 'تم انشاء المنحة بنجاح.',
+            'data' => $grant
+        ], 201);
+    }
+
+    public function update(UpdateGrantRequest $request, Grant $grant)
 {
-    $donor = Auth::user()->donor;
+    if ($grant->donor_id !== Auth::user()->donor->id) {
+        return response()->json([
+            'message' => 'Unauthorized.'
+        ], 403);
+    }
 
-    $grant = Grant::where('id', $id)
-        ->where('donor_id', $donor->id)
-        ->firstOrFail();
+    DB::transaction(function () use ($request, $grant) {
+        $oldReceivedAmount = $grant->received_amount_usd;
 
-    $oldAmount = $grant->total_amount_usd;
+        $data = $request->validated();
+        $data['donor_id'] = Auth::user()->donor->id;
 
-    $data = $request->validated();
-
-    DB::transaction(function () use ($grant, $data, $donor, $oldAmount) {
+        $projectIds = $data['projects'] ?? null;
+        unset($data['projects']);
 
         $grant->update($data);
 
-        // Ensure projects key exists and is an array
-        if (isset($data['projects']) && is_array($data['projects'])) {
-            $grant->projects()->sync($data['projects']);
+        if ($projectIds !== null) {
+            $grant->projects()->sync($projectIds);
         }
 
-        $newAmount = $grant->total_amount_usd;
+        $newReceivedAmount = $grant->fresh()->received_amount_usd;
+        $difference = $newReceivedAmount - $oldReceivedAmount;
 
-        $difference = $newAmount - $oldAmount;
+        if ($difference != 0) {
+            $donor = Donor::findOrFail($grant->donor_id);
+            $donor->increment('total_grants_usd', $difference);
+        }
 
-        $donor->increment('total_grants_usd', $difference);
+        $grant->load(['donor', 'projects']);
+    });
+
+    $grant->refresh()->load(['donor', 'projects']);
+
+    return response()->json([
+        'message' => 'تم تحديث بيانات المنحة بنجاح.',
+        'data' => $grant
+    ], 200);
+}
+
+public function destroy(Grant $grant)
+{
+    if ($grant->donor_id !== Auth::user()->donor->id) {
+        return response()->json([
+            'message' => 'Unauthorized.'
+        ], 403);
+    }
+
+    DB::transaction(function () use ($grant) {
+        $receivedAmount = $grant->received_amount_usd;
+
+        $donor = Donor::findOrFail($grant->donor_id);
+        $donor->decrement('total_grants_usd', $receivedAmount);
+
+        $grant->projects()->detach();
+        $grant->status = 'cancelled';
+        $grant->save();
     });
 
     return response()->json([
-        'message' => 'تم تحديث معلومات المنحة بنجاح',
-        'data' => $grant->load('projects')
-    ]);
+        'message' => 'تم الغاء المنحة بنجاح.'
+    ], 200);
 }
 
 
-public function destroy($id)
+public function acceptGrant(AcceptGrantRequest $request)
 {
+    $user = Auth::user();
 
-    $donor = Auth::user()->donor;
+    if (
+        !$user->employee ||
+        !in_array($user->employee->position, ['system_admin', 'finance_officer'])
+    ) {
+        return response()->json([
+            'message' => 'Unauthorized.'
+        ], 403);
+    }
 
-    $grant = Grant::where('id',$id)
-        ->where('donor_id',$donor->id)
-        ->firstOrFail();
+    $data = $request->validated();
 
+    $grant = null;
 
-    $donor->decrement('total_grants_usd', $grant->total_amount_usd);
+    DB::transaction(function () use ($data, &$grant) {
+        $grant = Grant::with(['donor', 'projects'])->findOrFail($data['grant_id']);
 
+        $newAmount = $data['new_amount'];
 
-    $grant->delete();
+        $grant->increment('received_amount_usd', $newAmount);
 
+        $donor = Donor::findOrFail($grant->donor_id);
+        $donor->increment('total_grants_usd', $newAmount);
+
+        $grant->refresh()->load(['donor', 'projects']);
+    });
 
     return response()->json([
-        'message' => 'تم الغاء المنحة بنجاح'
-    ]);
+        'message' => 'تم قبول المنحة بنجاح.',
+        'data' => $grant
+    ], 200);
 }
 
-public function grantsByDonor($donorId)
+public function getGrantsByProject($projectId)
 {
-
-    $grants = Grant::where('donor_id',$donorId)
-        ->with(['projects','donor'])
+    $grants = Grant::with(['donor', 'projects'])
+        ->whereHas('projects', function ($query) use ($projectId) {
+            $query->where('projects.id', $projectId);
+        })
         ->get();
 
-    return response()->json($grants);
+    return response()->json([
+        'message' => 'جميع المنح المرتبطة بهذا المشروع.',
+        'data' => $grants
+    ], 200);
 }
-public function grantsByProject($projectId)
+
+public function getGrantsByDonor($donorId)
 {
+    $grants = Grant::with(['donor', 'projects'])
+        ->where('donor_id', $donorId)
+        ->get();
 
-    $grants = Grant::whereHas('projects', function ($q) use ($projectId) {
-
-        $q->where('project_id',$projectId);
-
-    })->with(['donor','projects'])->get();
-    return response()->json($grants);
+    return response()->json([
+        'message' => 'جميع المنح المرتبطة بهذا المانح.',
+        'data' => $grants
+    ], 200);
 }
+
 }

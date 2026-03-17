@@ -169,21 +169,22 @@ Route::prefix('donors')
 
 
 
-Route::prefix('grants')->controller(GrantController::class)->group(function () {
+    Route::prefix('grants')->controller(GrantController::class)->group(function () {
 
     Route::get('/', 'index');
     Route::get('/{id}', 'show');
-    Route::get('/donors/{id}/grants','grantsByDonor');
-    Route::get('/projects/{id}/grants','grantsByProject');
+    Route::get('/donors/{id}','getGrantsByDonor');
+    Route::get('/projects/{id}','getGrantsByProject');
 
     Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/', [GrantController::class, 'store']);
-    Route::post('/{id}', [GrantController::class, 'update']);
-    Route::delete('/{id}', [GrantController::class, 'destroy']);
+    Route::post('/',  'store');
+    Route::post('/{id}',  'update');
+    Route::delete('/{id}', 'destroy');
+    Route::post('/accept',  'acceptGrant');
 
     });
- });
+    });
 
 
 

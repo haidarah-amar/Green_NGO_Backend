@@ -14,27 +14,16 @@ class StoreGrantRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-            'number' => 'required|string|unique:grants,number',
-
-            'name' => 'required|string|max:255',
-
-            'total_amount_usd' => 'required|integer|min:0',
-
-            'received_amount_usd' => 'required|integer|min:0',
-
-            'spent_amount_usd' => 'required|integer|min:0',
-
-            'start_date' => 'required|date',
-
-            'end_date' => 'required|date|after:start_date',
-
-            'status' => 'nullable|in:active,expired,draft,approved,suspended,cancelled',
-
+            'number' => ['required', 'string', 'max:255', 'unique:grants,number'],
+            'name' => ['required', 'string', 'max:255'],
+            'total_amount_usd' => ['required', 'integer', 'min:0'],
+            'received_amount_usd' => ['required', 'integer', 'min:0'],
+            'spent_amount_usd' => ['required', 'integer', 'min:0'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'status' => ['nullable', 'in:active,expired,draft,approved,suspended,cancelled'],
             'projects' => 'nullable|array',
-
             'projects.*' => 'exists:projects,id'
-
         ];
     }
 }
