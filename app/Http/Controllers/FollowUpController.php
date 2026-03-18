@@ -12,7 +12,7 @@ class FollowUpController extends Controller
 {
     public function index(): JsonResponse
     {
-        $followUps = FollowUP::with([
+        $followUps = FollowUp::with([
             'beneficiary',
             'program',
             'employee.user',
@@ -25,7 +25,7 @@ class FollowUpController extends Controller
 
     public function store(StoreFollowUpRequest $request): JsonResponse
     {
-        $followUp = FollowUP::create($request->validated());
+        $followUp = FollowUp::create($request->validated());
 
         $followUp->load([
             'beneficiary',
@@ -39,7 +39,7 @@ class FollowUpController extends Controller
         ], 201);
     }
 
-    public function show(FollowUP $followUp): JsonResponse
+    public function show(FollowUp $followUp): JsonResponse
     {
         $followUp->load([
             'beneficiary',
@@ -52,7 +52,7 @@ class FollowUpController extends Controller
         ], 200);
     }
 
-    public function update(UpdateFollowUpRequest $request, FollowUP $followUp): JsonResponse
+    public function update(UpdateFollowUpRequest $request, FollowUp $followUp): JsonResponse
     {
         $followUp->update($request->validated());
 
@@ -68,7 +68,7 @@ class FollowUpController extends Controller
         ], 200);
     }
 
-    public function destroy(FollowUP $followUp): JsonResponse
+    public function destroy(FollowUp $followUp): JsonResponse
     {
         $followUp->delete();
 
