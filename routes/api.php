@@ -14,6 +14,7 @@ use App\Http\Controllers\SuccessStoryController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\GrantController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\Api\FollowUpController;
 
 
 
@@ -210,6 +211,10 @@ Route::prefix('donors')
         Route::post('/', 'store');
         Route::put('/{expense}', 'update');
         Route::delete('/{expense}', 'destroy');
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('follow-ups', FollowUpController::class);
     });
 
 
