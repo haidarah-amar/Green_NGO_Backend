@@ -5,6 +5,7 @@ use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DonorController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GrantController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\KpiSummaryController;
@@ -186,6 +187,22 @@ Route::prefix('donors')
     });
     });
 
+
+    Route::middleware('auth:sanctum')
+    ->prefix('expenses')
+    ->controller(ExpenseController::class)
+    ->group(function () {
+
+        Route::get('/program/{programId}', 'getExpensesByProgram');
+        Route::get('/grant/{grantId}', 'getExpensesByGrant');
+        Route::get('/employee/{employeeId}', 'getExpensesByEmployee');
+
+        Route::get('/', 'index');
+        Route::get('/{expense}', 'show');
+        Route::post('/', 'store');
+        Route::put('/{expense}', 'update');
+        Route::delete('/{expense}', 'destroy');
+    });
 
 
 

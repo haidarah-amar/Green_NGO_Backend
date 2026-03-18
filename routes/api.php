@@ -13,6 +13,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SuccessStoryController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\GrantController;
+use App\Http\Controllers\ExpenseController;
+
 
 
 Route::get('/test', function () {
@@ -191,6 +193,23 @@ Route::prefix('donors')
     
 
     });
+    });
+
+
+    Route::middleware('auth:sanctum')
+    ->prefix('expenses')
+    ->controller(ExpenseController::class)
+    ->group(function () {
+
+        Route::get('/program/{programId}', 'getExpensesByProgram');
+        Route::get('/grant/{grantId}', 'getExpensesByGrant');
+        Route::get('/employee/{employeeId}', 'getExpensesByEmployee');
+
+        Route::get('/', 'index');
+        Route::get('/{expense}', 'show');
+        Route::post('/', 'store');
+        Route::put('/{expense}', 'update');
+        Route::delete('/{expense}', 'destroy');
     });
 
 
