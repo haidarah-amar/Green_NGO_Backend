@@ -78,4 +78,63 @@ class FollowUpController extends Controller
         ], 200);
     }
 
+
+    public function getFollowUpsByProgram($programId): JsonResponse
+{
+    $followUps = FollowUp::with([
+        'beneficiary',
+        'program',
+        'employee.user',
+    ])
+    ->where('program_id', $programId)
+    ->latest()
+    ->paginate(15);
+
+    return response()->json([
+        'data' => $followUps,
+    ], 200);
+}
+
+    public function getFollowUpsByBeneficiary($beneficiaryId): JsonResponse
+{
+    $followUps = FollowUp::with([
+        'beneficiary',
+        'program',
+        'employee.user',
+    ])
+    ->where('beneficiary_id', $beneficiaryId)
+    ->latest()
+    ->paginate(15);
+
+    return response()->json([
+        'data' => $followUps,
+    ], 200);
+}
+
+    public function getFollowUpsByEmployee($employeeId): JsonResponse
+{
+    $employee = \App\Models\Employee::findOrFail($employeeId);
+
+
+    if ($employee->position !== 'mel_officer') {
+        return response()->json([
+            'message' => 'هذا الموظف ليس مسؤول متابعة',
+        ], 403);
+    }
+
+    $followUps = FollowUp::with([
+        'beneficiary',
+        'program',
+        'employee.user',
+    ])
+    ->where('mel_officer_id', $employeeId)
+    ->latest()
+    ->paginate(15);
+
+    return response()->json([
+        'data' => $followUps,
+    ], 200);
+}
+
+
 }

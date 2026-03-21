@@ -15,6 +15,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\GrantController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\SurveyController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -212,16 +213,37 @@ Route::prefix('donors')
     });
 
 
-        Route::middleware('auth:sanctum')
+    
+    Route::middleware('auth:sanctum')
     ->prefix('follow-ups')
     ->controller(FollowUpController::class)
     ->group(function () {
 
         Route::get('/', 'index');
-        Route::get('/{expense}', 'show');
+        Route::get('/{followUp}', 'show');
         Route::post('/', 'store');
-        Route::put('/{expense}', 'update');
-        Route::delete('/{expense}', 'destroy');
+        Route::put('/{followUp}', 'update');
+        Route::delete('/{followUp}', 'destroy');
+
+    Route::get('/programs/{id}', 'getFollowUpsByProgram');
+    Route::get('/beneficiaries/{id}', 'getFollowUpsByBeneficiary');
+    Route::get('/employees/{id}', 'getFollowUpsByEmployee');
+
     });
+
+Route::prefix('surveys')->controller(SurveyController::class)->group(function () {
+
+    Route::get('/avg/{type}/{id}', 'getAvgRating');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', 'store');
+        Route::patch('/{survey}', 'update');
+        Route::delete('/{survey}', 'destroy');
+        Route::get('/', 'index');
+        Route::get('/{survey}', 'show');
+        Route::get('/all/{type}/{id}', 'getAllSurveies');
+    });
+    
+});
 
 

@@ -25,16 +25,16 @@ return new class extends Migration
                 ->constrained('beneficiaries')
                 ->onDelete('cascade');
            $table->foreignId('activity_id')
-    ->nullable()
-    ->constrained('activities')
-    ->nullOnDelete();
+                ->nullable()
+                ->constrained('activities')
+                ->nullOnDelete();
 
-    $table->foreignId('program_id')
-    ->nullable()
-    ->constrained('programs')
-    ->nullOnDelete();
+            $table->foreignId('program_id')
+            ->nullable()
+            ->constrained('programs')
+            ->nullOnDelete();
 
-    $table->timestamps();
+            $table->timestamps();
 });
         
         

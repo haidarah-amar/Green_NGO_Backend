@@ -13,6 +13,7 @@ use App\Http\Controllers\KpiSummaryController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SuccessStoryController;
+use App\Http\Controllers\SurveyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -205,17 +206,37 @@ Route::prefix('donors')
         Route::delete('/{expense}', 'destroy');
     });
 
-        Route::middleware('auth:sanctum')
+    Route::middleware('auth:sanctum')
     ->prefix('follow-ups')
     ->controller(FollowUpController::class)
     ->group(function () {
 
         Route::get('/', 'index');
-        Route::get('/{expense}', 'show');
+        Route::get('/{followUp}', 'show');
         Route::post('/', 'store');
-        Route::put('/{expense}', 'update');
-        Route::delete('/{expense}', 'destroy');
+        Route::put('/{followUp}', 'update');
+        Route::delete('/{followUp}', 'destroy');
+
+    Route::get('/programs/{id}', 'getFollowUpsByProgram');
+    Route::get('/beneficiaries/{id}', 'getFollowUpsByBeneficiary');
+    Route::get('/employees/{id}', 'getFollowUpsByEmployee');
+
     });
+
+    Route::prefix('surveys')->controller(SurveyController::class)->group(function () {
+
+    Route::get('/avg/{type}/{id}', 'getAvgRating');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', 'store');
+        Route::patch('/{survey}', 'update');
+        Route::delete('/{survey}', 'destroy');
+        Route::get('/', 'index');
+        Route::get('/{survey}', 'show');
+        Route::get('/all/{type}/{id}', 'getAllSurveies');
+    });
+    
+});
 
 
 

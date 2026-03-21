@@ -11,6 +11,7 @@ class FollowUp extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $table = 'follow_u_p_s';
 
     public function beneficiary()
     {
