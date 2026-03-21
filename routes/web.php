@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\Api\FollowUpController;
+use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\BeneficiaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DonorController;
@@ -205,8 +205,17 @@ Route::prefix('donors')
         Route::delete('/{expense}', 'destroy');
     });
 
-    Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('follow-ups', FollowUpController::class);
+        Route::middleware('auth:sanctum')
+    ->prefix('follow-ups')
+    ->controller(FollowUpController::class)
+    ->group(function () {
+
+        Route::get('/', 'index');
+        Route::get('/{expense}', 'show');
+        Route::post('/', 'store');
+        Route::put('/{expense}', 'update');
+        Route::delete('/{expense}', 'destroy');
     });
+
 
 

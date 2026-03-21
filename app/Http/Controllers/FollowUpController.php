@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
+use App\Models\FollowUp;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFollowUpRequest;
 use App\Http\Requests\UpdateFollowUpRequest;
-use App\Models\FollowUP;
 use Illuminate\Http\JsonResponse;
 
 class FollowUpController extends Controller
 {
-    public function index(): JsonResponse
+      public function index(): JsonResponse
     {
         $followUps = FollowUp::with([
             'beneficiary',
@@ -76,4 +77,5 @@ class FollowUpController extends Controller
             'message' => 'تم حذف بيانات المتابعة بنجاح.',
         ], 200);
     }
+
 }

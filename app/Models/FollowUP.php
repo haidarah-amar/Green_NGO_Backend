@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class FollowUp extends Model
 {
-    /** @use HasFactory<\Database\Factories\FollowUPFactory> */
+     /** @use HasFactory<\Database\Factories\FollowUPFactory> */
     use HasFactory;
 
     protected $guarded = [];
@@ -24,4 +24,5 @@ class FollowUp extends Model
     {
         return $this->belongsTo(Employee::class, 'mel_officer_id');
     }
+
 }
