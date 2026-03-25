@@ -12,6 +12,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\KpiSummaryController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuccessStoryController;
 use App\Http\Controllers\SurveyController;
 use Illuminate\Support\Facades\Route;
@@ -238,5 +239,21 @@ Route::prefix('donors')
     
 });
 
+    Route::middleware('auth:sanctum')
+    ->prefix('reports')
+    ->controller(ReportController::class)
+    ->group(function () {
+
+        Route::get('/', 'index');        
+        Route::post('/', 'store');       
+        Route::get('{id}', 'show');      
+        Route::patch('{id}', 'update');  
+        Route::delete('{id}', 'destroy'); 
+
+        Route::get('employee/{employeeId}', 'getReportsByEmployee');
+        Route::get('grant/{grantId}', 'getReportsByGrant');
+        Route::get('project/{projectId}', 'getReportsByProject');
+
+    });
 
 

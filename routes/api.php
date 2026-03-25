@@ -15,6 +15,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\GrantController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SurveyController;
 
 Route::get('/test', function () {
@@ -245,5 +246,23 @@ Route::prefix('surveys')->controller(SurveyController::class)->group(function ()
     });
     
 });
+
+    Route::middleware('auth:sanctum')
+    ->prefix('reports')
+    ->controller(ReportController::class)
+    ->group(function () {
+
+        Route::get('/', 'index');        
+        Route::post('/', 'store');       
+        Route::get('{id}', 'show');      
+        Route::patch('{id}', 'update');  
+        Route::delete('{id}', 'destroy'); 
+
+        Route::get('employee/{employeeId}', 'getReportsByEmployee');
+        Route::get('grant/{grantId}', 'getReportsByGrant');
+        Route::get('project/{projectId}', 'getReportsByProject');
+
+    });
+
 
 
