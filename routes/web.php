@@ -247,7 +247,7 @@ Route::prefix('donors')
         Route::get('/', 'index');        
         Route::post('/', 'store');       
         Route::get('{id}', 'show');      
-        Route::patch('{id}', 'update');  
+        Route::post('{id}', 'update');  
         Route::delete('{id}', 'destroy'); 
 
         Route::get('employee/{employeeId}', 'getReportsByEmployee');
